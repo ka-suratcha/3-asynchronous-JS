@@ -33,23 +33,46 @@ const writeFilePro = (filePath, data) => {
     })
 }
 
-// flat structure of chain promises
-readFilePro(`${__dirname}/dogg.txt`) // read file
-    .then(data => {
-        console.log(`Breed: ${data}`);
-        return superagent.get(`https://dog.ceo/api/breed/${data}/images/random`) // 
-    })
-    .then(res => {
-        console.log(res.body.message);
-        return writeFilePro('dog-img.txt', res.body.message);
+// then() still use callback func => use async/awit ES8
+// running in bg while performing the rest of the code in event loop (not blocking Event loop)
+// use ayns/await -> instead of having handle with callback func, make more synchronous
+// await in front promise and wait promise to comeback with result
+// this call syntactic sugar for promise
+const getDogPic = async () => {
+    try {
+        const dog_breed = await readFilePro(`${__dirname}/dog.txt`)
+        console.log(`Breed: ${dog_breed}`);
 
-    }).then(() => {
+        const dog_img = await superagent.get(`https://dog.ceo/api/breed/${dog_breed}/images/random`)
+        console.log(`${dog_img.body.message}`);
+
+        await writeFilePro('dog-img.txt', dog_img.body.message);
         console.log('rng dog image saved to file!');
-
-    })
-    .catch(err => {
+    } catch (err) {
         console.log(err);
-    });
+
+    }
+}
+
+getDogPic();
+
+// flat structure of chain promises
+// readFilePro(`${__dirname}/dogg.txt`) // read file
+//     .then(data => {
+//         console.log(`Breed: ${data}`);
+//         return superagent.get(`https://dog.ceo/api/breed/${data}/images/random`) //
+//     })
+//     .then(res => {
+//         console.log(res.body.message);
+//         return writeFilePro('dog-img.txt', res.body.message);
+
+//     }).then(() => {
+//         console.log('rng dog image saved to file!');
+
+//     })
+//     .catch(err => {
+//         console.log(err);
+//     });
 
 // fs.readFile(`${__dirname}/dog.txt`, (err, data) => {
 //     console.log(`Breed: ${data}`);
